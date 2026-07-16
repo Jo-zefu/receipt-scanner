@@ -2,13 +2,17 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Copy and install all dependencies (including dev for build)
 COPY server/package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
+# Copy source and build
 COPY server/src ./src
 COPY server/tsconfig.json ./
+RUN npm run build
 
-RUN npm install typescript tsx --save-dev && npm run build && rm -rf node_modules && npm ci --only=production
+# Remove dev dependencies
+RUN npm prune --production
 
 EXPOSE 3001
 
