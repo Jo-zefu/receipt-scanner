@@ -1,11 +1,9 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "cd server && npm install && npm run build"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "cd server && npm start"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
-
-[service]
-internalPort = 3001
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
