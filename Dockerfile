@@ -14,6 +14,7 @@ RUN npm run build
 # Remove dev dependencies
 RUN npm prune --production
 
-EXPOSE 3001
+ENV PORT=8080
+EXPOSE 8080
 
 CMD ["node", "dist/index.js"]
