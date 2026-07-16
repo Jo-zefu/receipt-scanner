@@ -11,7 +11,10 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export const supabase: SupabaseClient = supabaseUrl && supabaseKey
-  ? createClient(supabaseUrl, supabaseKey)
+  ? createClient(supabaseUrl, supabaseKey, {
+      realtime: { params: { eventsPerSecond: 0 } },
+      auth: { persistSession: false },
+    })
   : (null as unknown as SupabaseClient);
 
 export interface Receipt {
