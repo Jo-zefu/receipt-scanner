@@ -169,6 +169,6 @@ app.get('/api/summary', async (_req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`\n🧾 Receipt Scanner API running on port ${PORT}\n`);
 });
