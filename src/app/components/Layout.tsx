@@ -1,12 +1,12 @@
-import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router';
-import { 
-  LayoutDashboard, 
-  FileText, 
+import { ReactNode } from "react";
+import { Link, useLocation } from "react-router";
+import {
+  LayoutDashboard,
+  FileText,
   Upload as UploadIcon,
-  Receipt as ReceiptIcon 
-} from 'lucide-react';
-import { Button } from './ui/button';
+  Receipt as ReceiptIcon,
+} from "lucide-react";
+import { Button } from "./ui/button";
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,9 +16,9 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/upload', label: 'Scan Receipt', icon: UploadIcon },
-    { path: '/receipts', label: 'All Receipts', icon: FileText },
+    { path: "/", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/upload", label: "Scan Receipt", icon: UploadIcon },
+    { path: "/receipts", label: "All Receipts", icon: FileText },
   ];
 
   const isActive = (path: string) => {
@@ -42,7 +42,7 @@ export function Layout({ children }: LayoutProps) {
               return (
                 <Link key={item.path} to={item.path}>
                   <Button
-                    variant={isActive(item.path) ? 'default' : 'ghost'}
+                    variant={isActive(item.path) ? "default" : "ghost"}
                     className="gap-2"
                   >
                     <Icon className="h-4 w-4" />
@@ -63,7 +63,7 @@ export function Layout({ children }: LayoutProps) {
             return (
               <Link key={item.path} to={item.path}>
                 <Button
-                  variant={isActive(item.path) ? 'default' : 'ghost'}
+                  variant={isActive(item.path) ? "default" : "ghost"}
                   className="w-full flex-col h-auto py-2 gap-1"
                 >
                   <Icon className="h-5 w-5" />
@@ -76,9 +76,7 @@ export function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main Content */}
-      <main className="container py-6 pb-20 md:pb-6">
-        {children}
-      </main>
+      <main className="container py-6 pb-20 md:pb-6">{children}</main>
     </div>
   );
 }
