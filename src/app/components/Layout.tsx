@@ -26,9 +26,9 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur flex items-center justify-center">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <ReceiptIcon className="h-6 w-6 text-primary" />
