@@ -200,11 +200,21 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
         <Card className="p-6">
           <h3 className="mb-4">{t('detail.title')}</h3>
           {formData.imageUrl ? (
-            <img
-              src={formData.imageUrl}
-              alt="Receipt"
-              className="w-full rounded-lg border object-contain max-h-[600px]"
-            />
+            <div className="space-y-2">
+              <img
+                src={formData.imageUrl}
+                alt="Receipt"
+                className="w-full rounded-lg border object-contain max-h-[600px]"
+                onError={(e) => {
+                  console.error('图片加载失败:', formData.imageUrl);
+                  e.currentTarget.src = '';
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <p className="text-xs text-muted-foreground break-all">
+                URL: {formData.imageUrl}
+              </p>
+            </div>
           ) : (
             <div className="space-y-4">
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground border rounded-lg bg-muted/30">
