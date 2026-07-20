@@ -117,6 +117,7 @@
     "total": "总计",
     "notes": "备注",
     "rawText": "原始 OCR 文本",
+    "noImage": "无票据图片",
     "confidence": "置信度"
   },
   "toast": {

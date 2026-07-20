@@ -117,6 +117,7 @@
     "total": "Total",
     "notes": "Notes",
     "rawText": "Raw OCR Text",
+    "noImage": "No receipt image available",
     "confidence": "Confidence"
   },
   "toast": {

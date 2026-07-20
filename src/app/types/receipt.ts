@@ -7,6 +7,7 @@ export interface Receipt {
   paymentMethod: string;
   description?: string;
   imageUrl?: string;
+  rawText?: string;
   items?: ReceiptItem[];
   taxAmount?: number;
   createdAt: string;

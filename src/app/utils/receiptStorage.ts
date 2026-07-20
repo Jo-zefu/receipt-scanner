@@ -14,6 +14,7 @@ function toFrontend(r: ApiReceipt): Receipt {
     paymentMethod: r.payment_method || 'Other',
     description: r.notes || '',
     imageUrl: r.image_url || undefined,
+    rawText: r.raw_text || undefined,
     taxAmount: r.tax || undefined,
     createdAt: r.created_at,
   };

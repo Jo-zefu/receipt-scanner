@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, ImageOff } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '../utils/currency';
@@ -70,18 +70,6 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Receipt Image */}
-        {formData.imageUrl && (
-          <Card className="p-6">
-            <h3 className="mb-4">{t('detail.title')}</h3>
-            <img
-              src={formData.imageUrl}
-              alt="Receipt"
-              className="w-full rounded-lg border object-contain max-h-[600px]"
-            />
-          </Card>
-        )}
-
         {/* Form */}
         <Card className="p-6">
           <h3 className="mb-6">{t('edit.title')}</h3>
@@ -206,6 +194,33 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
               {t('edit.save')}
             </Button>
           </form>
+        </Card>
+
+        {/* Receipt Image / Raw Text */}
+        <Card className="p-6">
+          <h3 className="mb-4">{t('detail.title')}</h3>
+          {formData.imageUrl ? (
+            <img
+              src={formData.imageUrl}
+              alt="Receipt"
+              className="w-full rounded-lg border object-contain max-h-[600px]"
+            />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground border rounded-lg bg-muted/30">
+                <ImageOff className="h-12 w-12 mb-3 opacity-50" />
+                <p className="text-sm">{t('detail.noImage')}</p>
+              </div>
+              {receipt.rawText && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2 text-muted-foreground">{t('detail.rawText')}</h4>
+                  <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap max-h-[400px] overflow-y-auto">
+                    {receipt.rawText}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </Card>
       </div>
     </div>
