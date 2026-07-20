@@ -4,6 +4,8 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Eye, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency } from '../utils/currency';
 
 interface RecentReceiptsListProps {
   receipts: Receipt[];
@@ -12,14 +14,15 @@ interface RecentReceiptsListProps {
 
 export function RecentReceiptsList({ receipts, onDelete }: RecentReceiptsListProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const recentReceipts = receipts.slice(0, 5);
 
   if (receipts.length === 0) {
     return (
       <Card className="p-6">
-        <h3 className="mb-4">Recent Receipts</h3>
+        <h3 className="mb-4">{t('dashboard.recentReceipts')}</h3>
         <div className="text-center py-8 text-muted-foreground">
-          No receipts yet. Upload your first receipt to get started!
+          {t('receipts.noReceipts')}
         </div>
       </Card>
     );
@@ -28,13 +31,13 @@ export function RecentReceiptsList({ receipts, onDelete }: RecentReceiptsListPro
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3>Recent Receipts</h3>
+        <h3>{t('dashboard.recentReceipts')}</h3>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => navigate('/receipts')}
         >
-          View All
+          {t('dashboard.viewAll')}
         </Button>
       </div>
 
@@ -57,7 +60,7 @@ export function RecentReceiptsList({ receipts, onDelete }: RecentReceiptsListPro
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-sm text-muted-foreground">{receipt.date}</p>
                   <Badge variant="secondary" className="text-xs">
-                    {receipt.category}
+                    {t(`categories.${receipt.category}`)}
                   </Badge>
                 </div>
               </div>
@@ -65,7 +68,7 @@ export function RecentReceiptsList({ receipts, onDelete }: RecentReceiptsListPro
 
             <div className="flex items-center gap-3 ml-4">
               <p className="font-semibold whitespace-nowrap">
-                ${(receipt.amount + (receipt.taxAmount || 0)).toFixed(2)}
+                {formatCurrency(receipt.amount + (receipt.taxAmount || 0))}
               </p>
               <div className="flex gap-1">
                 <Button

@@ -1,0 +1,141 @@
+{
+  "app": {
+    "name": "票据扫描"
+  },
+  "nav": {
+    "dashboard": "仪表盘",
+    "scanReceipt": "扫描票据",
+    "allReceipts": "全部票据"
+  },
+  "dashboard": {
+    "title": "仪表盘",
+    "subtitle": "票据数据概览",
+    "totalReceipts": "总票据数",
+    "totalAmount": "总金额",
+    "thisMonth": "本月",
+    "avgPerReceipt": "平均每张",
+    "recentReceipts": "最近票据",
+    "categoryBreakdown": "分类统计",
+    "viewAll": "查看全部"
+  },
+  "upload": {
+    "title": "扫描票据",
+    "subtitle": "一次上传一张或多张票据图片 — OCR 自动提取数据",
+    "dropzone": "拖放票据图片到这里，或点击选择",
+    "uploading": "上传中",
+    "processing": "处理中",
+    "success": "成功",
+    "failed": "失败",
+    "uploadMore": "继续上传",
+    "viewReceipts": "查看全部票据"
+  },
+  "receipts": {
+    "title": "票据",
+    "subtitle": "管理和导出票据数据",
+    "newReceipt": "新建票据",
+    "searchPlaceholder": "搜索票据...",
+    "allCategories": "全部分类",
+    "sortByDate": "按日期排序",
+    "sortByAmount": "按金额排序",
+    "exportExcel": "导出 Excel",
+    "noReceipts": "未找到票据",
+    "totalReceipts": "总票据数",
+    "totalAmount": "总金额",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "deleteSelected": "删除选中",
+    "selected": "已选"
+  },
+  "table": {
+    "date": "日期",
+    "merchant": "商户",
+    "category": "分类",
+    "payment": "支付方式",
+    "amount": "金额",
+    "tax": "税费",
+    "total": "总计",
+    "actions": "操作",
+    "view": "查看详情",
+    "edit": "快速编辑",
+    "delete": "删除"
+  },
+  "categories": {
+    "Food & Dining": "餐饮",
+    "Transportation": "交通",
+    "Shopping": "购物",
+    "Entertainment": "娱乐",
+    "Healthcare": "医疗",
+    "Travel": "旅行",
+    "Office Supplies": "办公用品",
+    "Utilities": "水电费",
+    "Other": "其他"
+  },
+  "payment": {
+    "Cash": "现金",
+    "Credit Card": "信用卡",
+    "Debit Card": "借记卡",
+    "Digital Wallet": "数字钱包",
+    "Other": "其他"
+  },
+  "edit": {
+    "title": "编辑票据",
+    "merchantName": "商户名称",
+    "date": "日期",
+    "amount": "金额 (¥)",
+    "tax": "税费 (¥)",
+    "category": "分类",
+    "paymentMethod": "支付方式",
+    "notes": "备注",
+    "notesPlaceholder": "可选备注...",
+    "total": "总计",
+    "cancel": "取消",
+    "save": "保存修改"
+  },
+  "delete": {
+    "confirmTitle": "确认删除",
+    "confirmSingle": "确定要删除这张票据吗？",
+    "confirmMultiple": "确定要删除 {{count}} 张票据吗？",
+    "warning": "此操作无法撤销。",
+    "cancel": "取消",
+    "delete": "删除",
+    "success": "票据已删除",
+    "successMultiple": "已删除 {{count}} 张票据"
+  },
+  "detail": {
+    "title": "票据详情",
+    "backToList": "返回列表",
+    "edit": "编辑",
+    "delete": "删除",
+    "merchant": "商户",
+    "date": "日期",
+    "category": "分类",
+    "payment": "支付方式",
+    "subtotal": "小计",
+    "tax": "税费",
+    "total": "总计",
+    "notes": "备注",
+    "rawText": "原始 OCR 文本",
+    "confidence": "置信度"
+  },
+  "toast": {
+    "receiptDeleted": "票据已删除",
+    "receiptsDeleted": "票据已删除",
+    "receiptUpdated": "票据已更新",
+    "scanSuccess": "票据扫描成功",
+    "scanFailed": "扫描失败",
+    "deleteFailed": "删除失败",
+    "updateFailed": "更新失败"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "view": "查看",
+    "close": "关闭"
+  }
+}

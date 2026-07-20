@@ -1,6 +1,8 @@
 import { Receipt } from '../types/receipt';
 import { Card } from './ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency, getCurrencySymbol } from '../utils/currency';
 
 interface CategoryChartProps {
   receipts: Receipt[];
@@ -19,9 +21,10 @@ const COLORS = [
 ];
 
 export function CategoryChart({ receipts }: CategoryChartProps) {
+  const { t } = useTranslation();
   // Calculate totals by category
   const categoryTotals: { [key: string]: number } = {};
-  
+
   receipts.forEach(receipt => {
     const total = receipt.amount + (receipt.taxAmount || 0);
     categoryTotals[receipt.category] = (categoryTotals[receipt.category] || 0) + total;
@@ -34,9 +37,9 @@ export function CategoryChart({ receipts }: CategoryChartProps) {
   if (data.length === 0) {
     return (
       <Card className="p-6">
-        <h3 className="mb-4">Spending by Category</h3>
+        <h3 className="mb-4">{t('dashboard.categoryBreakdown')}</h3>
         <div className="flex items-center justify-center h-64 text-muted-foreground">
-          No data available
+          {t('receipts.noReceipts')}
         </div>
       </Card>
     );
@@ -44,7 +47,7 @@ export function CategoryChart({ receipts }: CategoryChartProps) {
 
   return (
     <Card className="p-6">
-      <h3 className="mb-4">Spending by Category</h3>
+      <h3 className="mb-4">{t('dashboard.categoryBreakdown')}</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -52,7 +55,7 @@ export function CategoryChart({ receipts }: CategoryChartProps) {
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) => `${t(`categories.${name}`)} ${(percent * 100).toFixed(0)}%`}
             outerRadius={80}
             fill="#8884d8"
             dataKey="value"
@@ -61,7 +64,7 @@ export function CategoryChart({ receipts }: CategoryChartProps) {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+          <Tooltip formatter={(value: number) => formatCurrency(value)} />
         </PieChart>
       </ResponsiveContainer>
 
@@ -73,9 +76,9 @@ export function CategoryChart({ receipts }: CategoryChartProps) {
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
               />
-              <span className="text-sm">{item.name}</span>
+              <span className="text-sm">{t(`categories.${item.name}`)}</span>
             </div>
-            <span className="text-sm font-medium">${item.value.toFixed(2)}</span>
+            <span className="text-sm font-medium">{formatCurrency(item.value)}</span>
           </div>
         ))}
       </div>

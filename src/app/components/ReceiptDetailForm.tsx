@@ -14,6 +14,8 @@ import {
 } from './ui/select';
 import { Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency } from '../utils/currency';
 
 interface ReceiptDetailFormProps {
   receipt: Receipt;
@@ -42,6 +44,7 @@ const paymentMethods: PaymentMethod[] = [
 
 export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState(receipt);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,7 +65,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          {t('detail.backToList')}
         </Button>
       </div>
 
@@ -70,7 +73,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
         {/* Receipt Image */}
         {formData.imageUrl && (
           <Card className="p-6">
-            <h3 className="mb-4">Receipt Image</h3>
+            <h3 className="mb-4">{t('detail.title')}</h3>
             <img
               src={formData.imageUrl}
               alt="Receipt"
@@ -81,11 +84,11 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
 
         {/* Form */}
         <Card className="p-6">
-          <h3 className="mb-6">Receipt Details</h3>
+          <h3 className="mb-6">{t('edit.title')}</h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="merchantName">Merchant Name *</Label>
+              <Label htmlFor="merchantName">{t('edit.merchantName')} *</Label>
               <Input
                 id="merchantName"
                 value={formData.merchantName}
@@ -96,7 +99,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="date">Date *</Label>
+                <Label htmlFor="date">{t('edit.date')} *</Label>
                 <Input
                   id="date"
                   type="date"
@@ -107,7 +110,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount *</Label>
+                <Label htmlFor="amount">{t('edit.amount')} *</Label>
                 <Input
                   id="amount"
                   type="number"
@@ -121,7 +124,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category">{t('edit.category')} *</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) => handleChange('category', value)}
@@ -132,7 +135,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
                   <SelectContent>
                     {categories.map(category => (
                       <SelectItem key={category} value={category}>
-                        {category}
+                        {t(`categories.${category}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -140,7 +143,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxAmount">Tax Amount</Label>
+                <Label htmlFor="taxAmount">{t('edit.tax')}</Label>
                 <Input
                   id="taxAmount"
                   type="number"
@@ -152,7 +155,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paymentMethod">Payment Method *</Label>
+              <Label htmlFor="paymentMethod">{t('edit.paymentMethod')} *</Label>
               <Select
                 value={formData.paymentMethod}
                 onValueChange={(value) => handleChange('paymentMethod', value)}
@@ -163,7 +166,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
                 <SelectContent>
                   {paymentMethods.map(method => (
                     <SelectItem key={method} value={method}>
-                      {method}
+                      {t(`payment.${method}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -171,36 +174,36 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description / Notes</Label>
+              <Label htmlFor="description">{t('edit.notes')}</Label>
               <Textarea
                 id="description"
                 value={formData.description || ''}
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={4}
-                placeholder="Add any additional notes..."
+                placeholder={t('edit.notesPlaceholder')}
               />
             </div>
 
             <div className="pt-4 border-t">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-muted-foreground">Subtotal:</span>
-                <span className="font-medium">${formData.amount.toFixed(2)}</span>
+                <span className="text-muted-foreground">{t('detail.subtotal')}:</span>
+                <span className="font-medium">{formatCurrency(formData.amount)}</span>
               </div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-muted-foreground">Tax:</span>
-                <span className="font-medium">${(formData.taxAmount || 0).toFixed(2)}</span>
+                <span className="text-muted-foreground">{t('detail.tax')}:</span>
+                <span className="font-medium">{formatCurrency(formData.taxAmount || 0)}</span>
               </div>
               <div className="flex justify-between items-center text-lg">
-                <span>Total:</span>
+                <span>{t('detail.total')}:</span>
                 <span className="font-semibold">
-                  ${(formData.amount + (formData.taxAmount || 0)).toFixed(2)}
+                  {formatCurrency(formData.amount + (formData.taxAmount || 0))}
                 </span>
               </div>
             </div>
 
             <Button type="submit" className="w-full">
               <Save className="mr-2 h-4 w-4" />
-              Save Changes
+              {t('edit.save')}
             </Button>
           </form>
         </Card>

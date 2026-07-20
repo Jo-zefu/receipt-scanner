@@ -75,6 +75,15 @@ export const api = {
     if (!res.ok) throw new Error('Delete all failed');
   },
 
+  async batchDeleteReceipts(ids: string[]): Promise<void> {
+    const res = await fetch(`${API_BASE}/api/receipts/batch-delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    });
+    if (!res.ok) throw new Error('Batch delete failed');
+  },
+
   async getSummary(): Promise<{ total: number; count: number; byCategory: Record<string, number> }> {
     const res = await fetch(`${API_BASE}/api/summary`);
     if (!res.ok) throw new Error('Failed to fetch summary');

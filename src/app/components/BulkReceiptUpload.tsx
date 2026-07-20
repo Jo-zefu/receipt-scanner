@@ -28,6 +28,8 @@ import { api } from '../utils/api';
 import { Receipt, Category, PaymentMethod } from '../types/receipt';
 import { toast } from 'sonner';
 import { Badge } from './ui/badge';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency, getCurrencySymbol } from '../utils/currency';
 
 type ItemStatus = 'pending' | 'processing' | 'done' | 'error';
 
@@ -67,6 +69,7 @@ interface BulkReceiptUploadProps {
 }
 
 export function BulkReceiptUpload({ onAllSaved }: BulkReceiptUploadProps) {
+  const { t } = useTranslation();
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessingAll, setIsProcessingAll] = useState(false);
@@ -393,6 +396,7 @@ interface QueueCardProps {
 }
 
 function QueueCard({ item, onRemove, onToggleExpand, onFieldChange }: QueueCardProps) {
+  const { t } = useTranslation();
   const statusColor = {
     pending: 'border-muted',
     processing: 'border-blue-300',
@@ -438,7 +442,7 @@ function QueueCard({ item, onRemove, onToggleExpand, onFieldChange }: QueueCardP
             {item.receipt.amount !== undefined && item.receipt.amount > 0 && (
               <>
                 <span className="text-xs text-muted-foreground">·</span>
-                <span className="text-xs font-medium">${item.receipt.amount.toFixed(2)}</span>
+                <span className="text-xs font-medium">{formatCurrency(item.receipt.amount)}</span>
               </>
             )}
           </div>
@@ -507,7 +511,7 @@ function QueueCard({ item, onRemove, onToggleExpand, onFieldChange }: QueueCardP
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">Amount ($)</Label>
+              <Label className="text-xs">{t('edit.amount')}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -522,7 +526,7 @@ function QueueCard({ item, onRemove, onToggleExpand, onFieldChange }: QueueCardP
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">Tax ($)</Label>
+              <Label className="text-xs">{t('edit.tax')}</Label>
               <Input
                 type="number"
                 step="0.01"

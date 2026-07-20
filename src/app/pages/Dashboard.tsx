@@ -7,9 +7,11 @@ import { RecentReceiptsList } from '../components/RecentReceiptsList';
 import { Button } from '../components/ui/button';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,12 +38,12 @@ export function Dashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1>Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your receipt data</p>
+          <h1>{t('dashboard.title')}</h1>
+          <p className="text-muted-foreground">{t('dashboard.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/upload')}>
           <Plus className="mr-2 h-4 w-4" />
-          Scan Receipt
+          {t('nav.scanReceipt')}
         </Button>
       </div>
 

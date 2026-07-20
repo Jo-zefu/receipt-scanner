@@ -7,6 +7,8 @@ import {
   Receipt as ReceiptIcon,
 } from "lucide-react";
 import { Button } from "./ui/button";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,11 +16,12 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const { t } = useTranslation();
 
   const navItems = [
-    { path: "/", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/upload", label: "Scan Receipt", icon: UploadIcon },
-    { path: "/receipts", label: "All Receipts", icon: FileText },
+    { path: "/", label: t('nav.dashboard'), icon: LayoutDashboard },
+    { path: "/upload", label: t('nav.scanReceipt'), icon: UploadIcon },
+    { path: "/receipts", label: t('nav.allReceipts'), icon: FileText },
   ];
 
   const isActive = (path: string) => {
@@ -32,7 +35,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <ReceiptIcon className="h-6 w-6 text-primary" />
-            <h2 className="font-semibold">ReceiptScan</h2>
+            <h2 className="font-semibold">{t('app.name')}</h2>
           </div>
 
           {/* Desktop Navigation */}
@@ -51,6 +54,7 @@ export function Layout({ children }: LayoutProps) {
                 </Link>
               );
             })}
+            <LanguageSwitcher />
           </nav>
         </div>
       </header>

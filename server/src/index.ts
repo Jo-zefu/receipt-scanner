@@ -156,6 +156,22 @@ app.delete('/api/receipts', async (_req, res) => {
   }
 });
 
+// Batch delete receipts
+app.post('/api/receipts/batch-delete', async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      res.status(400).json({ error: 'Invalid ids array' });
+      return;
+    }
+
+    await Promise.all(ids.map(id => deleteReceiptById(id)));
+    res.json({ success: true, message: `Deleted ${ids.length} receipts` });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get summary
 app.get('/api/summary', async (_req, res) => {
   try {

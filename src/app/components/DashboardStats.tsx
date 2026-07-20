@@ -1,48 +1,51 @@
 import { Receipt } from '../types/receipt';
 import { Card } from './ui/card';
 import { DollarSign, FileText, TrendingUp, Calendar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency } from '../utils/currency';
 
 interface DashboardStatsProps {
   receipts: Receipt[];
 }
 
 export function DashboardStats({ receipts }: DashboardStatsProps) {
+  const { t } = useTranslation();
   const totalAmount = receipts.reduce((sum, r) => sum + r.amount + (r.taxAmount || 0), 0);
   const thisMonthReceipts = receipts.filter(r => {
     const receiptDate = new Date(r.date);
     const now = new Date();
-    return receiptDate.getMonth() === now.getMonth() && 
+    return receiptDate.getMonth() === now.getMonth() &&
            receiptDate.getFullYear() === now.getFullYear();
   });
   const thisMonthAmount = thisMonthReceipts.reduce((sum, r) => sum + r.amount + (r.taxAmount || 0), 0);
-  
+
   const avgAmount = receipts.length > 0 ? totalAmount / receipts.length : 0;
 
   const stats = [
     {
-      title: 'Total Receipts',
+      title: t('dashboard.totalReceipts'),
       value: receipts.length.toString(),
       icon: FileText,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     {
-      title: 'Total Amount',
-      value: `$${totalAmount.toFixed(2)}`,
+      title: t('dashboard.totalAmount'),
+      value: formatCurrency(totalAmount),
       icon: DollarSign,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
-      title: 'This Month',
-      value: `$${thisMonthAmount.toFixed(2)}`,
+      title: t('dashboard.thisMonth'),
+      value: formatCurrency(thisMonthAmount),
       icon: Calendar,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },
     {
-      title: 'Average Amount',
-      value: `$${avgAmount.toFixed(2)}`,
+      title: t('dashboard.avgPerReceipt'),
+      value: formatCurrency(avgAmount),
       icon: TrendingUp,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',

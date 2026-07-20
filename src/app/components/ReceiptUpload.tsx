@@ -6,6 +6,7 @@ import { Progress } from './ui/progress';
 import { api } from '../utils/api';
 import { Receipt } from '../types/receipt';
 import { toast } from 'sonner';
+import { formatCurrency } from '../utils/currency';
 
 interface ReceiptUploadProps {
   onUploadComplete?: (receipt: Receipt) => void;
@@ -226,13 +227,13 @@ export function ReceiptUpload({ onUploadComplete }: ReceiptUploadProps) {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Amount:</span>
                       <span className="font-semibold">
-                        ${processedReceipt.amount.toFixed(2)}
+                        {formatCurrency(processedReceipt.amount)}
                       </span>
                     </div>
                     {processedReceipt.taxAmount && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Tax:</span>
-                        <span>${processedReceipt.taxAmount.toFixed(2)}</span>
+                        <span>{formatCurrency(processedReceipt.taxAmount)}</span>
                       </div>
                     )}
                   </div>

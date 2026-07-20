@@ -6,11 +6,17 @@ import { Button } from '../components/ui/button';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 
 export function Receipts() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'batch'; id?: string }>({ type: 'single' });
 
   useEffect(() => {
     loadReceipts();
@@ -23,16 +29,41 @@ export function Receipts() {
     setLoading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    await receiptStorage.delete(id);
-    toast.success('Receipt deleted');
-    await loadReceipts();
+  const handleDeleteRequest = (id: string) => {
+    setDeleteTarget({ type: 'single', id });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleBatchDeleteRequest = () => {
+    if (selectedIds.length === 0) return;
+    setDeleteTarget({ type: 'batch' });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      if (deleteTarget.type === 'single' && deleteTarget.id) {
+        await receiptStorage.delete(deleteTarget.id);
+        toast.success(t('toast.receiptDeleted'));
+      } else if (deleteTarget.type === 'batch') {
+        await Promise.all(selectedIds.map(id => receiptStorage.delete(id)));
+        toast.success(t('delete.successMultiple', { count: selectedIds.length }));
+        setSelectedIds([]);
+      }
+      await loadReceipts();
+    } catch (error) {
+      toast.error(t('toast.deleteFailed'));
+    }
   };
 
   const handleUpdate = async (id: string, updates: Partial<Receipt>) => {
-    await receiptStorage.update(id, updates);
-    toast.success('Receipt updated');
-    await loadReceipts();
+    try {
+      await receiptStorage.update(id, updates);
+      toast.success(t('toast.receiptUpdated'));
+      await loadReceipts();
+    } catch (error) {
+      toast.error(t('toast.updateFailed'));
+    }
   };
 
   if (loading) {
@@ -47,16 +78,30 @@ export function Receipts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1>Receipts</h1>
-          <p className="text-muted-foreground">Manage and export your receipt data</p>
+          <h1>{t('receipts.title')}</h1>
+          <p className="text-muted-foreground">{t('receipts.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/upload')}>
           <Plus className="mr-2 h-4 w-4" />
-          New Receipt
+          {t('receipts.newReceipt')}
         </Button>
       </div>
 
-      <ReceiptsTable receipts={receipts} onDelete={handleDelete} onUpdate={handleUpdate} />
+      <ReceiptsTable
+        receipts={receipts}
+        onDelete={handleDeleteRequest}
+        onUpdate={handleUpdate}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        onBatchDelete={handleBatchDeleteRequest}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        count={deleteTarget.type === 'batch' ? selectedIds.length : 1}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }
