@@ -6,3 +6,4 @@ server/dist/
 server/.env
 *.local
 .vercel
+.env*

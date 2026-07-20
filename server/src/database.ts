@@ -30,6 +30,7 @@ export interface Receipt {
   payment_method?: string | null;
   notes?: string | null;
   tax?: number | null;
+  user_id?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -45,59 +46,81 @@ export async function insertReceipt(receipt: Receipt): Promise<Receipt> {
   return data;
 }
 
-export async function getAllReceipts(): Promise<Receipt[]> {
-  const { data, error } = await supabase
+export async function getAllReceipts(userId?: string): Promise<Receipt[]> {
+  let query = supabase
     .from('receipts')
     .select('*')
     .order('created_at', { ascending: false });
 
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query;
   if (error) throw new Error(`Fetch failed: ${error.message}`);
   return data || [];
 }
 
-export async function getReceiptById(id: string): Promise<Receipt | null> {
-  const { data, error } = await supabase
+export async function getReceiptById(id: string, userId?: string): Promise<Receipt | null> {
+  let query = supabase
     .from('receipts')
     .select('*')
-    .eq('id', id)
-    .single();
+    .eq('id', id);
 
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query.single();
   if (error) return null;
   return data;
 }
 
-export async function updateReceiptById(id: string, updates: Partial<Receipt>): Promise<Receipt> {
-  const { data, error } = await supabase
+export async function updateReceiptById(id: string, updates: Partial<Receipt>, userId?: string): Promise<Receipt> {
+  let query = supabase
     .from('receipts')
     .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
+    .eq('id', id);
 
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query.select().single();
   if (error) throw new Error(`Update failed: ${error.message}`);
   return data;
 }
 
-export async function deleteReceiptById(id: string): Promise<void> {
-  const { error } = await supabase
+export async function deleteReceiptById(id: string, userId?: string): Promise<void> {
+  let query = supabase
     .from('receipts')
     .delete()
     .eq('id', id);
 
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { error } = await query;
   if (error) throw new Error(`Delete failed: ${error.message}`);
 }
 
-export async function deleteAllReceipts(): Promise<void> {
-  const { error } = await supabase
+export async function deleteAllReceipts(userId?: string): Promise<void> {
+  let query = supabase
     .from('receipts')
     .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000'); // delete all
+    .neq('id', '00000000-0000-0000-0000-000000000000');
 
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { error } = await query;
   if (error) throw new Error(`Delete all failed: ${error.message}`);
 }
 
-export async function getReceiptSummary(): Promise<{ total: number; count: number; byCategory: Record<string, number> }> {
-  const receipts = await getAllReceipts();
+export async function getReceiptSummary(userId?: string): Promise<{ total: number; count: number; byCategory: Record<string, number> }> {
+  const receipts = await getAllReceipts(userId);
   const total = receipts.reduce((sum, r) => sum + (r.amount || 0), 0);
   const byCategory: Record<string, number> = {};
 

@@ -153,5 +153,21 @@
     "failed": "Long receipt scan failed, please try again",
     "pagesScanned": "{{count}} pages scanned",
     "scanAnother": "Scan Another"
+  },
+  "auth": {
+    "signInTitle": "Sign in to your account",
+    "signUpTitle": "Create a new account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "haveAccount": "Already have an account? Sign in",
+    "noAccount": "Don't have an account? Sign up",
+    "fillAll": "Please fill in all fields",
+    "passwordMismatch": "Passwords don't match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "signUpSuccess": "Sign up successful, please check your email for verification"
   }
 }

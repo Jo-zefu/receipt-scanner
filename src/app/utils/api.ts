@@ -1,4 +1,20 @@
+import { supabase } from './supabase';
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+  return {};
+}
+
+async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const authHeaders = await getAuthHeaders();
+  const headers = { ...authHeaders, ...(options.headers || {}) };
+  return fetch(url, { ...options, headers });
+}
 
 export interface ApiReceipt {
   id: string;
@@ -22,8 +38,10 @@ export const api = {
     const formData = new FormData();
     formData.append('image', file);
 
+    const authHeaders = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/api/scan`, {
       method: 'POST',
+      headers: authHeaders,
       body: formData,
     });
 
@@ -40,8 +58,10 @@ export const api = {
     const formData = new FormData();
     files.forEach((file) => formData.append('images', file));
 
+    const authHeaders = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/api/scan-multi`, {
       method: 'POST',
+      headers: authHeaders,
       body: formData,
     });
 
@@ -55,21 +75,21 @@ export const api = {
   },
 
   async getAllReceipts(): Promise<ApiReceipt[]> {
-    const res = await fetch(`${API_BASE}/api/receipts`);
+    const res = await authFetch(`${API_BASE}/api/receipts`);
     if (!res.ok) throw new Error('Failed to fetch receipts');
     const data = await res.json();
     return data.receipts;
   },
 
   async getReceipt(id: string): Promise<ApiReceipt> {
-    const res = await fetch(`${API_BASE}/api/receipts/${id}`);
+    const res = await authFetch(`${API_BASE}/api/receipts/${id}`);
     if (!res.ok) throw new Error('Receipt not found');
     const data = await res.json();
     return data.receipt;
   },
 
   async updateReceipt(id: string, updates: Partial<ApiReceipt>): Promise<ApiReceipt> {
-    const res = await fetch(`${API_BASE}/api/receipts/${id}`, {
+    const res = await authFetch(`${API_BASE}/api/receipts/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
@@ -80,21 +100,21 @@ export const api = {
   },
 
   async deleteReceipt(id: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/api/receipts/${id}`, {
+    const res = await authFetch(`${API_BASE}/api/receipts/${id}`, {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('Delete failed');
   },
 
   async deleteAllReceipts(): Promise<void> {
-    const res = await fetch(`${API_BASE}/api/receipts`, {
+    const res = await authFetch(`${API_BASE}/api/receipts`, {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('Delete all failed');
   },
 
   async batchDeleteReceipts(ids: string[]): Promise<void> {
-    const res = await fetch(`${API_BASE}/api/receipts/batch-delete`, {
+    const res = await authFetch(`${API_BASE}/api/receipts/batch-delete`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids }),
@@ -103,7 +123,7 @@ export const api = {
   },
 
   async getSummary(): Promise<{ total: number; count: number; byCategory: Record<string, number> }> {
-    const res = await fetch(`${API_BASE}/api/summary`);
+    const res = await authFetch(`${API_BASE}/api/summary`);
     if (!res.ok) throw new Error('Failed to fetch summary');
     const data = await res.json();
     return data.summary;

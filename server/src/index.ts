@@ -15,6 +15,7 @@ import {
   uploadImage,
   Receipt,
 } from './database';
+import { authMiddleware, AuthenticatedRequest } from './auth';
 
 dotenv.config();
 
@@ -25,6 +26,9 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Apply auth middleware to all /api routes
+app.use('/api', authMiddleware);
 
 // Multer for file uploads
 const upload = multer({
@@ -38,7 +42,7 @@ app.get('/health', (_req, res) => {
 });
 
 // Upload and scan receipt
-app.post('/api/scan', upload.single('image'), async (req, res) => {
+app.post('/api/scan', upload.single('image'), async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.file) {
       res.status(400).json({ error: 'No image file provided' });
@@ -55,20 +59,16 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
       console.log('Receipt OCR raw response keys:', JSON.stringify(Object.keys(ocrResult)));
       console.log('Receipt OCR words_result sample:', JSON.stringify((ocrResult.words_result || []).slice(0, 3)));
 
-      // 百度票据 OCR 返回的结构化数据处理
       if (ocrResult.words_result) {
         const structured: any = {};
 
         if (Array.isArray(ocrResult.words_result)) {
           ocrResult.words_result.forEach((item: any) => {
-            // 格式1: {key: "商品名称", value: "咖啡"}
             if (item.key && item.value) {
               structured[item.key] = item.value;
             }
-            // 格式2: {word: "总计 ¥25.00"} - 这种会被 parser 通过 rawText 处理
           });
         } else if (typeof ocrResult.words_result === 'object') {
-          // 格式3: 百度票据 OCR 有时返回 {words_result: {shop_name: "xxx", total_amount: "25.00"}}
           Object.assign(structured, ocrResult.words_result);
         }
 
@@ -97,6 +97,7 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
       raw_text: parsed.rawText,
       confidence: parsed.confidence,
       image_url: imageUrl,
+      user_id: req.userId || null,
     };
 
     const saved = await insertReceipt(receipt);
@@ -112,7 +113,7 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
 });
 
 // Scan multiple images (long receipt) and merge OCR results
-app.post('/api/scan-multi', upload.array('images', 10), async (req, res) => {
+app.post('/api/scan-multi', upload.array('images', 10), async (req: AuthenticatedRequest, res) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {
@@ -170,6 +171,7 @@ app.post('/api/scan-multi', upload.array('images', 10), async (req, res) => {
       raw_text: parsed.rawText,
       confidence: parsed.confidence,
       image_url: imageUrl,
+      user_id: req.userId || null,
     };
 
     const saved = await insertReceipt(receipt);
@@ -186,9 +188,9 @@ app.post('/api/scan-multi', upload.array('images', 10), async (req, res) => {
 });
 
 // Get all receipts
-app.get('/api/receipts', async (_req, res) => {
+app.get('/api/receipts', async (req: AuthenticatedRequest, res) => {
   try {
-    const receipts = await getAllReceipts();
+    const receipts = await getAllReceipts(req.userId);
     res.json({ success: true, receipts });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -196,9 +198,9 @@ app.get('/api/receipts', async (_req, res) => {
 });
 
 // Get receipt by ID
-app.get('/api/receipts/:id', async (req, res) => {
+app.get('/api/receipts/:id', async (req: AuthenticatedRequest, res) => {
   try {
-    const receipt = await getReceiptById(req.params.id);
+    const receipt = await getReceiptById(req.params.id, req.userId);
     if (!receipt) {
       res.status(404).json({ error: 'Receipt not found' });
       return;
@@ -210,9 +212,9 @@ app.get('/api/receipts/:id', async (req, res) => {
 });
 
 // Update receipt
-app.put('/api/receipts/:id', async (req, res) => {
+app.put('/api/receipts/:id', async (req: AuthenticatedRequest, res) => {
   try {
-    const updated = await updateReceiptById(req.params.id, req.body);
+    const updated = await updateReceiptById(req.params.id, req.body, req.userId);
     res.json({ success: true, receipt: updated });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -220,9 +222,9 @@ app.put('/api/receipts/:id', async (req, res) => {
 });
 
 // Delete receipt
-app.delete('/api/receipts/:id', async (req, res) => {
+app.delete('/api/receipts/:id', async (req: AuthenticatedRequest, res) => {
   try {
-    await deleteReceiptById(req.params.id);
+    await deleteReceiptById(req.params.id, req.userId);
     res.json({ success: true, message: 'Deleted' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -230,9 +232,9 @@ app.delete('/api/receipts/:id', async (req, res) => {
 });
 
 // Delete all receipts
-app.delete('/api/receipts', async (_req, res) => {
+app.delete('/api/receipts', async (req: AuthenticatedRequest, res) => {
   try {
-    await deleteAllReceipts();
+    await deleteAllReceipts(req.userId);
     res.json({ success: true, message: 'All receipts deleted' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -240,7 +242,7 @@ app.delete('/api/receipts', async (_req, res) => {
 });
 
 // Batch delete receipts
-app.post('/api/receipts/batch-delete', async (req, res) => {
+app.post('/api/receipts/batch-delete', async (req: AuthenticatedRequest, res) => {
   try {
     const { ids } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
@@ -248,7 +250,7 @@ app.post('/api/receipts/batch-delete', async (req, res) => {
       return;
     }
 
-    await Promise.all(ids.map(id => deleteReceiptById(id)));
+    await Promise.all(ids.map(id => deleteReceiptById(id, req.userId)));
     res.json({ success: true, message: `Deleted ${ids.length} receipts` });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -256,9 +258,9 @@ app.post('/api/receipts/batch-delete', async (req, res) => {
 });
 
 // Get summary
-app.get('/api/summary', async (_req, res) => {
+app.get('/api/summary', async (req: AuthenticatedRequest, res) => {
   try {
-    const summary = await getReceiptSummary();
+    const summary = await getReceiptSummary(req.userId);
     res.json({ success: true, summary });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
