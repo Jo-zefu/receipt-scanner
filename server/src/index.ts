@@ -52,17 +52,26 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
     let ocrResult: any;
     try {
       ocrResult = await recognizeReceipt(imageBase64);
-      // 如果票据识别返回了结构化字段，合并到 _structured
-      if (ocrResult.words_result && ocrResult.words_result_num > 0) {
-        // receipt API 返回结构化数据
+      console.log('Receipt OCR raw response keys:', JSON.stringify(Object.keys(ocrResult)));
+      console.log('Receipt OCR words_result sample:', JSON.stringify((ocrResult.words_result || []).slice(0, 3)));
+
+      // 百度票据 OCR 返回的结构化数据处理
+      if (ocrResult.words_result) {
         const structured: any = {};
+
         if (Array.isArray(ocrResult.words_result)) {
           ocrResult.words_result.forEach((item: any) => {
+            // 格式1: {key: "商品名称", value: "咖啡"}
             if (item.key && item.value) {
               structured[item.key] = item.value;
             }
+            // 格式2: {word: "总计 ¥25.00"} - 这种会被 parser 通过 rawText 处理
           });
+        } else if (typeof ocrResult.words_result === 'object') {
+          // 格式3: 百度票据 OCR 有时返回 {words_result: {shop_name: "xxx", total_amount: "25.00"}}
+          Object.assign(structured, ocrResult.words_result);
         }
+
         if (Object.keys(structured).length > 0) {
           ocrResult._structured = structured;
         }
@@ -98,6 +107,80 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
     });
   } catch (error: any) {
     console.error('Scan failed:', error.message, error.response?.status, error.response?.data);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Scan multiple images (long receipt) and merge OCR results
+app.post('/api/scan-multi', upload.array('images', 10), async (req, res) => {
+  try {
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) {
+      res.status(400).json({ error: 'No image files provided' });
+      return;
+    }
+
+    console.log(`Processing ${files.length} images for long receipt scan`);
+
+    // OCR all images in parallel
+    const ocrResults = await Promise.all(
+      files.map(async (file) => {
+        const imageBase64 = file.buffer.toString('base64');
+        try {
+          return await recognizeReceipt(imageBase64);
+        } catch {
+          return await recognizeGeneral(imageBase64);
+        }
+      })
+    );
+
+    // Merge all OCR results into one
+    const mergedResult: any = { words_result: [], words_result_num: 0 };
+    const allStructured: any = {};
+
+    for (const result of ocrResults) {
+      if (Array.isArray(result.words_result)) {
+        for (const item of result.words_result) {
+          mergedResult.words_result.push(item);
+          if (item.key && item.value) {
+            allStructured[item.key] = item.value;
+          }
+        }
+      }
+    }
+
+    mergedResult.words_result_num = mergedResult.words_result.length;
+    if (Object.keys(allStructured).length > 0) {
+      mergedResult._structured = allStructured;
+    }
+
+    // Parse merged result
+    const filename = files[0].originalname;
+    const parsed = parseReceipt(mergedResult, filename);
+
+    // Upload first image as representative
+    const imageUrl = await uploadImage(files[0].buffer, filename);
+
+    const receipt: Receipt = {
+      filename: parsed.filename,
+      vendor: parsed.vendor,
+      category: parsed.category,
+      amount: parsed.amount,
+      date: parsed.date,
+      raw_text: parsed.rawText,
+      confidence: parsed.confidence,
+      image_url: imageUrl,
+    };
+
+    const saved = await insertReceipt(receipt);
+
+    res.json({
+      success: true,
+      receipt: saved,
+      pages: files.length,
+    });
+  } catch (error: any) {
+    console.error('Multi-scan failed:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

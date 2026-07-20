@@ -27,24 +27,51 @@ export function extractAmount(ocrResult: any): { amount: number | null; confiden
     }
   }
 
-  // 从文字中提取
-  const words = (ocrResult.words_result || []).map((w: any) => w.words).join('\n');
+  // 从文字中提取（兼容 receipt OCR 的 word 和 general OCR 的 words）
+  const words = (Array.isArray(ocrResult.words_result) ? ocrResult.words_result : [])
+    .map((w: any) => w.words || w.word || '')
+    .join('\n');
 
-  // 匹配"合计"、"总计"、"Total"等关键词后面的金额
-  const totalPatterns = [
-    /(?:合计|总计|总额|实付|应付|实收|Total|Amount|Sum)[：:\s]*[¥￥$]?\s*(\d+\.?\d*)/i,
-    /[¥￥$]\s*(\d+\.?\d*)/,
-    /(\d+\.\d{2})/,
-  ];
-
-  for (const pattern of totalPatterns) {
-    const match = words.match(pattern);
-    if (match) {
-      const val = parseFloat(match[1]);
-      if (!isNaN(val) && val > 0 && val < 1000000) {
-        return { amount: val, confidence: pattern === totalPatterns[0] ? 'high' : 'low' };
-      }
+  // 优先匹配"合计"、"总计"、"Total"等关键词后面的金额（取最后一个匹配，因为总计通常在最后）
+  const totalPattern = /(?:合计|总计|总额|实付|应付|实收|Total|Amount|Sum)[：:\s]*[¥￥$]?\s*(\d+\.?\d*)/gi;
+  let totalMatch: RegExpExecArray | null;
+  let lastTotalVal: number | null = null;
+  while ((totalMatch = totalPattern.exec(words)) !== null) {
+    const val = parseFloat(totalMatch[1]);
+    if (!isNaN(val) && val > 0 && val < 1000000) {
+      lastTotalVal = val;
     }
+  }
+  if (lastTotalVal !== null) {
+    return { amount: lastTotalVal, confidence: 'high' };
+  }
+
+  // Fallback: 匹配带货币符号的金额，取最大值
+  const currencyPattern = /[¥￥$]\s*(\d+\.?\d*)/g;
+  let currencyMatch: RegExpExecArray | null;
+  let maxCurrencyVal = 0;
+  while ((currencyMatch = currencyPattern.exec(words)) !== null) {
+    const val = parseFloat(currencyMatch[1]);
+    if (!isNaN(val) && val > maxCurrencyVal && val < 1000000) {
+      maxCurrencyVal = val;
+    }
+  }
+  if (maxCurrencyVal > 0) {
+    return { amount: maxCurrencyVal, confidence: 'low' };
+  }
+
+  // Last fallback: 匹配 xx.xx 格式的数字，取最大值
+  const decimalPattern = /(\d+\.\d{2})/g;
+  let decimalMatch: RegExpExecArray | null;
+  let maxDecimalVal = 0;
+  while ((decimalMatch = decimalPattern.exec(words)) !== null) {
+    const val = parseFloat(decimalMatch[1]);
+    if (!isNaN(val) && val > maxDecimalVal && val < 1000000) {
+      maxDecimalVal = val;
+    }
+  }
+  if (maxDecimalVal > 0) {
+    return { amount: maxDecimalVal, confidence: 'low' };
   }
 
   return { amount: null, confidence: 'low' };
@@ -62,7 +89,8 @@ export function extractVendor(ocrResult: any): string | null {
     }
   }
 
-  const words = (ocrResult.words_result || []).map((w: any) => w.words);
+  const words = (Array.isArray(ocrResult.words_result) ? ocrResult.words_result : [])
+    .map((w: any) => w.words || w.word || '');
   // 通常商家名在前几行
   for (let i = 0; i < Math.min(5, words.length); i++) {
     const line = words[i];
@@ -92,7 +120,8 @@ export function extractDate(ocrResult: any): string | null {
     }
   }
 
-  const words = (ocrResult.words_result || []).map((w: any) => w.words).join(' ');
+  const words = (Array.isArray(ocrResult.words_result) ? ocrResult.words_result : [])
+    .map((w: any) => w.words || w.word || '').join(' ');
 
   const datePatterns = [
     /(\d{4})[年/-](\d{1,2})[月/-](\d{1,2})/,
@@ -114,7 +143,8 @@ export function extractDate(ocrResult: any): string | null {
  * 分类
  */
 export function categorize(ocrResult: any): string {
-  const words = (ocrResult.words_result || []).map((w: any) => w.words).join(' ').toLowerCase();
+  const words = (Array.isArray(ocrResult.words_result) ? ocrResult.words_result : [])
+    .map((w: any) => w.words || w.word || '').join(' ').toLowerCase();
 
   const categories: Record<string, string[]> = {
     'Food & Dining': ['餐', '食', '饭', '咖啡', '奶茶', '超市', '便利店', 'restaurant', 'food', 'coffee', 'cafe', 'market'],
@@ -146,8 +176,8 @@ export function parseReceipt(ocrResult: any, filename: string): ParsedReceipt {
   const vendor = extractVendor(ocrResult);
   const date = extractDate(ocrResult);
   const category = categorize(ocrResult);
-  const rawText = (ocrResult.words_result || [])
-    .map((w: any) => w.words)
+  const rawText = (Array.isArray(ocrResult.words_result) ? ocrResult.words_result : [])
+    .map((w: any) => w.words || w.word || '')
     .join(' ');
 
   return {

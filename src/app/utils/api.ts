@@ -36,6 +36,24 @@ export const api = {
     return data.receipt;
   },
 
+  async scanMultiReceipt(files: File[]): Promise<ApiReceipt> {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+
+    const res = await fetch(`${API_BASE}/api/scan-multi`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Multi-scan failed');
+    }
+
+    const data = await res.json();
+    return data.receipt;
+  },
+
   async getAllReceipts(): Promise<ApiReceipt[]> {
     const res = await fetch(`${API_BASE}/api/receipts`);
     if (!res.ok) throw new Error('Failed to fetch receipts');

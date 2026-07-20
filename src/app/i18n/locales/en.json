@@ -27,7 +27,9 @@
     "success": "Success",
     "failed": "Failed",
     "uploadMore": "Upload More",
-    "viewReceipts": "View All Receipts"
+    "viewReceipts": "View All Receipts",
+    "normalMode": "Normal Scan",
+    "longMode": "Long Receipt"
   },
   "receipts": {
     "title": "Receipts",
@@ -137,5 +139,18 @@
     "edit": "Edit",
     "view": "View",
     "close": "Close"
+  },
+  "longReceipt": {
+    "title": "Long Receipt Capture",
+    "description": "Take multiple photos of a long receipt — the system will merge and recognize all parts",
+    "takeFirst": "Take First Photo",
+    "addMore": "Add More",
+    "fromGallery": "From Gallery",
+    "process": "Start Scanning ({{count}} pages)",
+    "processing": "Merging and scanning...",
+    "success": "Long receipt scanned successfully",
+    "failed": "Long receipt scan failed, please try again",
+    "pagesScanned": "{{count}} pages scanned",
+    "scanAnother": "Scan Another"
   }
 }

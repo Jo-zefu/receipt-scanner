@@ -27,7 +27,9 @@
     "success": "成功",
     "failed": "失败",
     "uploadMore": "继续上传",
-    "viewReceipts": "查看全部票据"
+    "viewReceipts": "查看全部票据",
+    "normalMode": "普通扫描",
+    "longMode": "长账单拍摄"
   },
   "receipts": {
     "title": "票据",
@@ -137,5 +139,18 @@
     "edit": "编辑",
     "view": "查看",
     "close": "关闭"
+  },
+  "longReceipt": {
+    "title": "长账单拍摄",
+    "description": "分段拍摄长账单的各部分，系统会合并识别所有内容",
+    "takeFirst": "拍摄第一段",
+    "addMore": "继续拍摄",
+    "fromGallery": "从相册选择",
+    "process": "开始识别 ({{count}} 张)",
+    "processing": "正在合并识别...",
+    "success": "长账单识别成功",
+    "failed": "长账单识别失败，请重试",
+    "pagesScanned": "共扫描 {{count}} 段",
+    "scanAnother": "扫描另一张账单"
   }
 }
