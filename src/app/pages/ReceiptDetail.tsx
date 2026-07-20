@@ -4,6 +4,7 @@ import { Receipt } from '../types/receipt';
 import { receiptStorage } from '../utils/receiptStorage';
 import { ReceiptDetailForm } from '../components/ReceiptDetailForm';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export function ReceiptDetail() {
   const { id } = useParams<{ id: string }>();
@@ -50,7 +51,7 @@ export function ReceiptDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <LoadingSpinner />
       </div>
     );
   }

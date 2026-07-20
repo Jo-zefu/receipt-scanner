@@ -8,6 +8,7 @@ import { Button } from '../components/ui/button';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <LoadingSpinner />
       </div>
     );
   }
