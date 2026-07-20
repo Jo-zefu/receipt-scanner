@@ -12,7 +12,7 @@ export function getCurrencySymbol(): string {
 /**
  * 格式化金额：货币符号 + 金额（保留两位小数）
  */
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number | undefined | null): string {
   const symbol = getCurrencySymbol();
-  return `${symbol}${amount.toFixed(2)}`;
+  return `${symbol}${(amount ?? 0).toFixed(2)}`;
 }

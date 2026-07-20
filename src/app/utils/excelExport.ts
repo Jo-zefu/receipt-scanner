@@ -36,12 +36,12 @@ export const exportToExcel = (receipts: Receipt[], filename: string = 'receipts.
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Receipts');
 
   // Add summary sheet
-  const totalAmount = receipts.reduce((sum, r) => sum + r.amount, 0);
+  const totalAmount = receipts.reduce((sum, r) => sum + (r.amount || 0), 0);
   const totalTax = receipts.reduce((sum, r) => sum + (r.taxAmount || 0), 0);
   
   const categoryTotals: { [key: string]: number } = {};
   receipts.forEach(r => {
-    categoryTotals[r.category] = (categoryTotals[r.category] || 0) + r.amount;
+    categoryTotals[r.category] = (categoryTotals[r.category] || 0) + (r.amount || 0);
   });
 
   const summaryData = [
