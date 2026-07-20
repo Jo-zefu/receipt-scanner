@@ -9,31 +9,56 @@ export function ReceiptDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      const data = receiptStorage.getById(id);
-      if (data) {
-        setReceipt(data);
-      } else {
-        toast.error('Receipt not found');
+    const loadReceipt = async () => {
+      if (!id) {
         navigate('/receipts');
+        return;
       }
-    }
+      try {
+        const data = await receiptStorage.getById(id);
+        if (data) {
+          setReceipt(data);
+        } else {
+          toast.error('Receipt not found');
+          navigate('/receipts');
+        }
+      } catch (error) {
+        console.error('Failed to load receipt:', error);
+        toast.error('Failed to load receipt');
+        navigate('/receipts');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadReceipt();
   }, [id, navigate]);
 
-  const handleSave = (updatedReceipt: Receipt) => {
-    if (id) {
-      receiptStorage.update(id, updatedReceipt);
+  const handleSave = async (updatedReceipt: Receipt) => {
+    if (!id) return;
+    try {
+      await receiptStorage.update(id, updatedReceipt);
       toast.success('Receipt updated successfully');
       navigate('/receipts');
+    } catch (error) {
+      toast.error('Failed to update receipt');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!receipt) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">Receipt not found</p>
       </div>
     );
   }

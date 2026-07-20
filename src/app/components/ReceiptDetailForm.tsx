@@ -196,7 +196,7 @@ export function ReceiptDetailForm({ receipt, onSave }: ReceiptDetailFormProps) {
               <div className="flex justify-between items-center text-lg">
                 <span>{t('detail.total')}:</span>
                 <span className="font-semibold">
-                  {formatCurrency(formData.amount + (formData.taxAmount || 0))}
+                  {formatCurrency((formData.amount || 0) + (formData.taxAmount || 0))}
                 </span>
               </div>
             </div>
